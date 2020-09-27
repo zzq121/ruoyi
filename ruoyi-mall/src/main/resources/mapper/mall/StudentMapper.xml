@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.StudentMapper">
+    
+    <resultMap type="Student" id="StudentResult">
+        <result property="id"    column="student_id"    />
+        <result property="name"    column="student_name"    />
+        <result property="age"    column="student_age"    />
+        <result property="hobby"    column="student_hobby"    />
+        <result property="sex"    column="student_sex"    />
+        <result property="status"    column="student_status"    />
+        <result property="birthday"    column="student_birthday"    />
+    </resultMap>
+
+    <sql id="selectStudentVo">
+        select student_id, student_name, student_age, student_hobby, student_sex, student_status, student_birthday from student
+    </sql>
+
+    <select id="selectStudentList" parameterType="Student" resultMap="StudentResult">
+        <include refid="selectStudentVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and student_name like concat('%', #{name}, '%')</if>
+            <if test="age != null "> and student_age = #{age}</if>
+            <if test="hobby != null  and hobby != ''"> and student_hobby like concat('%', #{hobby}, '%')</if>
+            <if test="sex != null  and sex != ''"> and student_sex = #{sex}</if>
+            <if test="status != null  and status != ''"> and student_status = #{status}</if>
+            <if test="params.beginBirthday != null and params.beginBirthday != '' and params.endBirthday != null and params.endBirthday != ''"> and student_birthday between #{params.beginBirthday} and #{params.endBirthday}</if>
+        </where>
+    </select>
+    
+    <select id="selectStudentById" parameterType="Long" resultMap="StudentResult">
+        <include refid="selectStudentVo"/>
+        where student_id = #{id}
+    </select>
+
+    <insert id="insertStudent" parameterType="Student" useGeneratedKeys="true" keyProperty="id">
+        insert into student
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">student_name,</if>
+            <if test="age != null">student_age,</if>
+            <if test="hobby != null and hobby != ''">student_hobby,</if>
+            <if test="sex != null and sex != ''">student_sex,</if>
+            <if test="status != null">student_status,</if>
+            <if test="birthday != null">student_birthday,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="age != null">#{age},</if>
+            <if test="hobby != null and hobby != ''">#{hobby},</if>
+            <if test="sex != null and sex != ''">#{sex},</if>
+            <if test="status != null">#{status},</if>
+            <if test="birthday != null">#{birthday},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStudent" parameterType="Student">
+        update student
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">student_name = #{name},</if>
+            <if test="age != null">student_age = #{age},</if>
+            <if test="hobby != null and hobby != ''">student_hobby = #{hobby},</if>
+            <if test="sex != null and sex != ''">student_sex = #{sex},</if>
+            <if test="status != null">student_status = #{status},</if>
+            <if test="birthday != null">student_birthday = #{birthday},</if>
+        </trim>
+        where student_id = #{id}
+    </update>
+
+    <delete id="deleteStudentById" parameterType="Long">
+        delete from student where student_id = #{id}
+    </delete>
+
+    <delete id="deleteStudentByIds" parameterType="String">
+        delete from student where student_id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
